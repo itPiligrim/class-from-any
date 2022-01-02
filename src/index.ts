@@ -1,3 +1,10 @@
-import { Num } from './Num'
+import {
+    FromAny,
+    Convert,
+    GetFrom,
+    ChildObject,
+    ChildArray,
+    Validate
+} from "./from-any";
 
-export { Num }
+export { FromAny, Convert, GetFrom, ChildObject, ChildArray, Validate };
