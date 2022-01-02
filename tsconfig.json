@@ -1,21 +1,13 @@
 {
     "compilerOptions": {
-      "strictNullChecks": true,
-      "noImplicitAny": true,
-      "outDir": ".build",
-      "rootDir": "./",
-      "module": "commonjs",
-      "lib": ["es2019", "es2020.bigint", "es2020.string", "es2020.symbol.wellknown"],
       "target": "es5",
       "strict": true,
       "moduleResolution": "node",
       "esModuleInterop": true,
-      "paths": {
-      },
+      "forceConsistentCasingInFileNames": true,
+      "strictPropertyInitialization": false,
       "experimentalDecorators": true,
       "useDefineForClassFields": true,
-      "strictPropertyInitialization": false,
     },
-    "include": ["src/**/*", "test/**/*"],
-    "exclude": ["node_modules", "**/.eslintrc.js"]
+    "include": ["src/**/*"]
   }

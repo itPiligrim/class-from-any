@@ -71,9 +71,9 @@ import {
     ChildObject
 } from "class-from-any";
 
-import { isString, notEmpty, isNumber, notEmptyArray } from "class-from-any/validate";
+import { isString, notEmpty, isNumber, notEmptyArray } from "class-from-any";
 
-import { toInt, toFloat } from "class-from-any/convert";
+import { toInt, toFloat } from "class-from-any";
 
 class ChemicalCompositionFromJSON extends FromAny implements ChemicalComposition {
     @Convert(toInt) @Validate(isNumber, notEmpty) iron: number;
