@@ -8,7 +8,24 @@ Allows use of decorator to get, convert and validate class from raw object data.
 npm install class-from-any --save
 ```
 
-# Usage
+# Hello world
+
+```bash
+
+import { FromAny, GetFrom, Validate, isString, notEmpty } from "class-from-any";
+
+const worldJSONData = `{"name": "Earth"}`;
+
+class World extends FromAny {
+    @GetFrom("name") @Validate(isString, notEmpty) title: string;
+}
+
+const world = new World().from(
+    JSON.parse(worldJSONData) as Record<string, unknown>
+);
+```
+
+# Full example
 
 For example, you have this JSON object data:
 
@@ -104,3 +121,8 @@ const worldData = JSON.parse(worldJSONData) as Record<string, unknown>;
 const world = new WorldFromJSON().from(worldData);
 
 ```
+
+# Under construction
+
+Modules "validate" and "convert" is under construction.
+We welcome contributors!

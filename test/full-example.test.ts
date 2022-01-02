@@ -11,7 +11,7 @@ import { isString, notEmpty, isNumber, notEmptyArray } from "../src/validate";
 
 import { toInt, toFloat } from "../src/convert";
 
-test("FromAny", () => {
+test("FullExample", () => {
     const worldJSONData = `{
         "name": "Earth",
         "description": "Earth is the third planet from the Sun.",
