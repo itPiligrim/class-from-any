@@ -12,15 +12,8 @@ const isAnyObject: (val: unknown) => boolean = (val: unknown) => {
     return val !== null && !Array.isArray(val) && typeof val === "object";
 };
 
-const throwError = (
-    description: string,
-    data: AnyObject,
-    key?: key,
-    value?: unknown
-): void => {
-    const dataAsString: string = isAnyObject(data)
-        ? JSON.stringify(data)
-        : String(data);
+const throwError = (description: string, data: AnyObject, key?: key, value?: unknown): void => {
+    const dataAsString: string = isAnyObject(data) ? JSON.stringify(data) : String(data);
 
     const errorText = `${String(description)};
         Key: ${String(key)}; Value: ${String(value)}; Data: ${dataAsString}`;
@@ -50,33 +43,18 @@ export class FromAny {
                 childArray && Array.isArray(val)
                     ? val.map((arrayElement) => {
                           if (isAnyObject(arrayElement)) {
-                              return new childArray().from(
-                                  arrayElement as AnyObject
-                              );
+                              return new childArray().from(arrayElement as AnyObject);
                           } else {
-                              throwError(
-                                  "Child element is not object",
-                                  data,
-                                  key,
-                                  arrayElement
-                              );
+                              throwError("Child element is not object", data, key, arrayElement);
                           }
                       })
                     : val;
 
-            val =
-                childObject && isAnyObject(val)
-                    ? new childObject().from(val as AnyObject)
-                    : val;
+            val = childObject && isAnyObject(val) ? new childObject().from(val as AnyObject) : val;
 
             validateFuncs.forEach((func) => {
                 if (!func(val)) {
-                    throwError(
-                        `Validate function ${func.name} fail`,
-                        data,
-                        key,
-                        val
-                    );
+                    throwError(`Validate function ${func.name} fail`, data, key, val);
                 }
             });
 
@@ -95,11 +73,7 @@ export const GetFrom = (propertyName: key) => {
 const getFromMetadataKey = "GetFrom";
 
 const getPropertyName = (fromAnyInstance: FromAny, key: key): key => {
-    const propertyName = Reflect.getMetadata(
-        getFromMetadataKey,
-        fromAnyInstance,
-        key
-    ) as key | undefined;
+    const propertyName = Reflect.getMetadata(getFromMetadataKey, fromAnyInstance, key) as key | undefined;
     return propertyName ? propertyName : key;
 };
 
@@ -112,15 +86,8 @@ export const Validate = (...validateFunc: validateFunc[]) => {
 type validateFunc = (val: unknown) => boolean;
 const validateMetadataKey = "Validate";
 
-const getValidateFuncs = (
-    fromAnyInstance: FromAny,
-    key: key
-): validateFunc[] => {
-    const funcs = Reflect.getMetadata(
-        validateMetadataKey,
-        fromAnyInstance,
-        key
-    ) as validateFunc[] | undefined;
+const getValidateFuncs = (fromAnyInstance: FromAny, key: key): validateFunc[] => {
+    const funcs = Reflect.getMetadata(validateMetadataKey, fromAnyInstance, key) as validateFunc[] | undefined;
     return funcs ? funcs : [];
 };
 
@@ -132,13 +99,8 @@ export const ChildObject = (childClass: typeof FromAny) => {
 
 const childObjectMetadataKey = "ChildObject";
 
-const getChildObject = (
-    fromAnyInstance: FromAny,
-    key: key
-): typeof FromAny | undefined => {
-    return Reflect.getMetadata(childObjectMetadataKey, fromAnyInstance, key) as
-        | typeof FromAny
-        | undefined;
+const getChildObject = (fromAnyInstance: FromAny, key: key): typeof FromAny | undefined => {
+    return Reflect.getMetadata(childObjectMetadataKey, fromAnyInstance, key) as typeof FromAny | undefined;
 };
 
 /* Child array */
@@ -149,13 +111,8 @@ export const ChildArray = (childClass: typeof FromAny) => {
 
 const childArrayMetadataKey = "ChildArray";
 
-const getChildArray = (
-    fromAnyInstance: FromAny,
-    key: key
-): typeof FromAny | undefined => {
-    return Reflect.getMetadata(childArrayMetadataKey, fromAnyInstance, key) as
-        | typeof FromAny
-        | undefined;
+const getChildArray = (fromAnyInstance: FromAny, key: key): typeof FromAny | undefined => {
+    return Reflect.getMetadata(childArrayMetadataKey, fromAnyInstance, key) as typeof FromAny | undefined;
 };
 
 /* Convert */
@@ -168,10 +125,6 @@ type converterFunc = (val: unknown) => unknown;
 const convertMetadataKey = "Convert";
 
 const getConvertFunc = (fromAnyInstance: FromAny, key: key): converterFunc => {
-    const func = Reflect.getMetadata(
-        convertMetadataKey,
-        fromAnyInstance,
-        key
-    ) as converterFunc | undefined;
+    const func = Reflect.getMetadata(convertMetadataKey, fromAnyInstance, key) as converterFunc | undefined;
     return func ? func : (val) => val;
 };

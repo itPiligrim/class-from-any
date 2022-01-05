@@ -1,6 +1,6 @@
 module.exports = {
   "singleQuote": false,
-  "printWidth": 80,
+  "printWidth": 120,
   "editor.formatOnSave": true,
   "proseWrap": "always",
   "tabWidth": 4,
