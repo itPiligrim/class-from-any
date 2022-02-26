@@ -13,3 +13,7 @@ export const notEmpty = (val: unknown): boolean => {
 export const notEmptyArray = (val: unknown): boolean => {
     return Array.isArray(val) && val.length ? true : false;
 };
+
+export const isArray = (val: unknown): boolean => {
+    return Array.isArray(val) ? true : false;
+};
