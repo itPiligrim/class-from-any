@@ -38,7 +38,7 @@ export class FromAny {
             const childArray = getChildArray(this, key);
             const childObject = getChildObject(this, key);
 
-            let val = "propertyName" in data ? data[propertyName] : defaultValue;
+            let val = propertyName in data ? data[propertyName] : defaultValue;
             val = convertFunc(val);
 
             val =
