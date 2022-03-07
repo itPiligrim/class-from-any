@@ -34,10 +34,12 @@ export class FromAny {
             const propertyName = getPropertyName(this, key);
             const validateFuncs = getValidateFuncs(this, key);
             const convertFunc = getConvertFunc(this, key);
+            const defaultValue = getDefaultValueFunc(this, key);
             const childArray = getChildArray(this, key);
             const childObject = getChildObject(this, key);
 
-            let val = convertFunc(data[propertyName]);
+            let val = defaultValue;
+            val = convertFunc(data[propertyName]);
 
             val =
                 childArray && Array.isArray(val)
@@ -127,4 +129,17 @@ const convertMetadataKey = "Convert";
 const getConvertFunc = (fromAnyInstance: FromAny, key: key): converterFunc => {
     const func = Reflect.getMetadata(convertMetadataKey, fromAnyInstance, key) as converterFunc | undefined;
     return func ? func : (val) => val;
+};
+
+/* DefaultValue */
+
+export const DefaultValue = (value: unknown) => {
+    return Reflect.metadata(defaultValueMetadataKey, value);
+};
+
+const defaultValueMetadataKey = "Value";
+
+const getDefaultValueFunc = (fromAnyInstance: FromAny, key: key): unknown => {
+    const defaultValue = Reflect.getMetadata(defaultValueMetadataKey, fromAnyInstance, key) as unknown;
+    return defaultValue ? defaultValue : undefined;
 };

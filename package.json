@@ -1,6 +1,6 @@
 {
   "name": "class-from-any",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "description": "Allows use of decorator to get, convert and validate class from raw object data",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
