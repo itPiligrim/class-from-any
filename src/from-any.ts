@@ -140,6 +140,5 @@ export const DefaultValue = (value: unknown) => {
 const defaultValueMetadataKey = "Value";
 
 const getDefaultValueFunc = (fromAnyInstance: FromAny, key: key): unknown => {
-    const defaultValue = Reflect.getMetadata(defaultValueMetadataKey, fromAnyInstance, key) as unknown;
-    return defaultValue ? defaultValue : undefined;
+    return Reflect.getMetadata(defaultValueMetadataKey, fromAnyInstance, key) as unknown;
 };
