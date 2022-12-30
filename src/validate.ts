@@ -17,3 +17,8 @@ export const notEmptyArray = (val: unknown): boolean => {
 export const isArray = (val: unknown): boolean => {
     return Array.isArray(val) ? true : false;
 };
+
+export const isObject = (val: unknown): boolean => {
+    return !!val && typeof val === "object";
+};
+

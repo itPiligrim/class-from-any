@@ -1,64 +1,85 @@
 import "reflect-metadata";
 
-/* Any object */
-
 type key = string | symbol;
-
-interface AnyObject {
-    [key: key]: unknown;
-}
 
 const isAnyObject: (val: unknown) => boolean = (val: unknown) => {
     return val !== null && !Array.isArray(val) && typeof val === "object";
 };
 
-const throwError = (description: string, data: AnyObject, key?: key, value?: unknown): void => {
+const errorText = (description: string, data: object, key?: key, value?: unknown): string => {
     const dataAsString: string = isAnyObject(data) ? JSON.stringify(data) : String(data);
 
-    const errorText = `${String(description)};
+    return `${String(description)};
         Key: ${String(key)}; Value: ${String(value)}; Data: ${dataAsString}`;
-
-    throw new Error(errorText);
 };
+
+const getObjectPropertyByString = function(obj: object, path: string, defaultValue: unknown) {
+    // https://stackoverflow.com/a/6491621/4604351
+    path = path.replace(/\[(\w+)\]/g, '.$1'); // convert indexes to properties
+    path = path.replace(/^\./, '');           // strip a leading dot
+    const props = path.split('.');
+    for (let i = 0, n = props.length; i < n; ++i) {
+        const currentProp = props[i];
+        if (currentProp in obj) {
+            obj = obj[currentProp as keyof typeof obj];
+        } else {
+            return defaultValue;
+        }
+    }
+    return obj;
+}
 
 /* FromAny */
 
 export class FromAny {
     [key: key]: unknown;
-    from(data: AnyObject): this {
+    from(data: object): this {
         if (typeof data !== "object") {
-            throwError("Data is not object", data);
+            throw errorText("Data is not object", data);
         }
         const keys = Reflect.ownKeys(this);
         keys.forEach((key: key) => {
             const propertyName = getPropertyName(this, key);
             const validateFuncs = getValidateFuncs(this, key);
             const convertFunc = getConvertFunc(this, key);
-            const defaultValue = getDefaultValueFunc(this, key);
+            const defaultValue = getDefaultValue(this, key);
             const childArray = getChildArray(this, key);
             const childObject = getChildObject(this, key);
+            const isEqualValue = getIsEqualValue(this, key);
 
-            let val = propertyName in data ? data[propertyName] : defaultValue;
+            let val = getObjectPropertyByString(data, String(propertyName), defaultValue);
+            
             val = convertFunc(val);
 
             val =
                 childArray && Array.isArray(val)
                     ? val.map((arrayElement) => {
                           if (isAnyObject(arrayElement)) {
-                              return new childArray().from(arrayElement as AnyObject);
+                              return new childArray().from(arrayElement as object);
                           } else {
-                              throwError("Child element is not object", data, key, arrayElement);
+                              throw errorText("Child element is not object", data, key, arrayElement);
                           }
                       })
                     : val;
 
-            val = childObject && isAnyObject(val) ? new childObject().from(val as AnyObject) : val;
+            val = childObject && isAnyObject(val) ? new childObject().from(val as object) : val;
 
             validateFuncs.forEach((func) => {
                 if (!func(val)) {
-                    throwError(`Validate function ${func.name} fail`, data, key, val);
+                    throw errorText(`Validate function ${func.name} fail`, data, key, val);
                 }
             });
+
+            if (isEqualValue !== undefined) {
+                if (isEqualValue !== val) {
+                    throw errorText(
+                        `The value of the ${String(key)} property must be equal to ${String(isEqualValue)}`,
+                        data,
+                        key,
+                        val
+                    );
+                }
+            }
 
             this[key] = val;
         });
@@ -123,7 +144,7 @@ export const Convert = (converter: converterFunc) => {
     return Reflect.metadata(convertMetadataKey, converter);
 };
 
-type converterFunc = (val: unknown) => unknown;
+type converterFunc = (val: any) => any;
 const convertMetadataKey = "Convert";
 
 const getConvertFunc = (fromAnyInstance: FromAny, key: key): converterFunc => {
@@ -139,6 +160,18 @@ export const DefaultValue = (value: unknown) => {
 
 const defaultValueMetadataKey = "Value";
 
-const getDefaultValueFunc = (fromAnyInstance: FromAny, key: key): unknown => {
+const getDefaultValue = (fromAnyInstance: FromAny, key: key): unknown => {
     return Reflect.getMetadata(defaultValueMetadataKey, fromAnyInstance, key) as unknown;
+};
+
+/* IsEqual */
+
+export const IsEqual = (isEqualFunc: unknown) => {
+    return Reflect.metadata(isEqualMetadataKey, isEqualFunc);
+};
+
+const isEqualMetadataKey = "IsEqual";
+
+const getIsEqualValue = (fromAnyInstance: FromAny, key: key): unknown => {
+    return Reflect.getMetadata(isEqualMetadataKey, fromAnyInstance, key) as unknown;
 };

@@ -23,3 +23,10 @@ export const toFloat = (val: unknown): number => {
     }
     throw new Error(`Unknown property value`);
 };
+
+export const toDate = (val: number | string): Date => {
+    if (!val) {
+        return new Date(0);
+    }
+    return new Date(val);
+}

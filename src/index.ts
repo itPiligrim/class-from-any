@@ -1,8 +1,8 @@
-import { FromAny, Convert, GetFrom, ChildObject, ChildArray, Validate, DefaultValue } from "./from-any";
-export { FromAny, Convert, GetFrom, ChildObject, ChildArray, Validate, DefaultValue };
+import { FromAny, Convert, GetFrom, ChildObject, ChildArray, Validate, DefaultValue, IsEqual } from "./from-any";
+export { FromAny, Convert, GetFrom, ChildObject, ChildArray, Validate, DefaultValue, IsEqual };
 
-import { isString, isNumber, notEmpty, notEmptyArray, isArray } from "./validate";
-export { isString, isNumber, notEmpty, notEmptyArray, isArray };
+import { isString, isNumber, notEmpty, notEmptyArray, isArray, isObject } from "./validate";
+export { isString, isNumber, notEmpty, notEmptyArray, isArray, isObject };
 
-import { toFloat, toInt } from "./convert";
-export { toInt, toFloat };
+import { toFloat, toInt, toDate } from "./convert";
+export { toInt, toFloat, toDate };
