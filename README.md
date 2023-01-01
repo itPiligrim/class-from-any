@@ -8,6 +8,20 @@ Allows use of decorator to get, convert and validate class from raw object data.
 npm install class-from-any --save
 ```
 
+Enable esModuleInterop,  experimentalDecorators and useDefineForClassFields and disable strictPropertyInitialization in the tsconfig.json.
+
+```bash
+
+"compilerOptions": {
+    ...
+    "esModuleInterop": true,
+    "strictPropertyInitialization": false,
+    "experimentalDecorators": true,
+    "useDefineForClassFields": true,
+}
+
+```
+
 # Hello world
 
 ```bash
@@ -33,6 +47,7 @@ For example, you have this JSON object data:
 
 const worldJSONData = `{
     "name": "Earth",
+    "date": 1668271586239,
     "description": "Earth is the third planet from the Sun.",
     "alternativeNames": ["Gaia", "Terra", "Tellus"],        
     "chemicalComposition": {
@@ -41,12 +56,15 @@ const worldJSONData = `{
         "silicon": "15%",
         "magnesium": "13.9%"
     },
-    "satellites": [
-        {
-            "name": "Moon"
-        }
-    ]
+    "star": {
+        "name": "The Sun"
+    },        
+    "satellites": [{
+        "name": "Moon"
+    }]
 }`;
+
+const worldData = JSON.parse(worldJSONData) as Record<string, unknown>;
 
 ```
 
@@ -57,9 +75,11 @@ We want to get and validate classes or interfaces from JSON:
 class World {
     title: string; // not name
     description: string;
-    otherNames: string[];
+    date: Date;
+    otherNames: string[]; // not alternativeNames
     chemicalComposition: ChemicalComposition;
     satellites: Satellite[];
+    star: string; // star.name property in JSON
 }
 
 class ChemicalComposition {
@@ -75,6 +95,7 @@ class Satellite {
 
 ```
 
+Note that the class structure does not exactly replicate the JSON available to us.
 Declare implements from our clear classes or interfaces:
 
 ```bash
@@ -85,12 +106,17 @@ import {
     Validate,
     ChildArray,
     Convert,
-    ChildObject
-} from "class-from-any";
-
-import { isString, notEmpty, isNumber, notEmptyArray } from "class-from-any";
-
-import { toInt, toFloat } from "class-from-any";
+    ChildObject,
+    IsEqual,
+    isString,
+    notEmpty,
+    isNumber,
+    notEmptyArray,
+    isObject,
+    toInt,
+    toFloat,
+    toDate
+} from "../src";
 
 class ChemicalCompositionFromJSON extends FromAny implements ChemicalComposition {
     @Convert(toInt) @Validate(isNumber, notEmpty) iron: number;
@@ -104,11 +130,21 @@ class SatelliteFromJSON extends FromAny implements Satellite {
 }
 
 class WorldFromJSON extends FromAny implements World {
-    @GetFrom("name") @Validate(isString, notEmpty) title: string;
+    @GetFrom("name") @Validate(isString, notEmpty) @IsEqual("Earth") title: string;
+    @Convert(toDate) @Validate(notEmpty) date: Date;
+
     @Validate(isString, notEmpty) description: string;
-    @GetFrom("alternativeNames") @Validate(notEmptyArray) otherNames: string[];
-    @ChildObject(ChemicalCompositionFromJSON) chemicalComposition: ChemicalComposition;
+
+    @GetFrom("alternativeNames")
+    @Validate(notEmptyArray)
+    otherNames: string[]; // not alternativeNames
+
+    @ChildObject(ChemicalCompositionFromJSON)
+    @Validate(isObject)
+    chemicalComposition: ChemicalComposition;
+
     @ChildArray(SatelliteFromJSON) satellites: Satellite[];
+    @GetFrom("star.name") @Validate(isString, notEmpty) star: string;
 }
 
 ```
@@ -117,12 +153,11 @@ Get, convert and validate class from JSON data
 
 ```bash
 
-const worldData = JSON.parse(worldJSONData) as Record<string, unknown>;
 const world = new WorldFromJSON().from(worldData);
 
 ```
 
 # Under construction
 
-Modules "validate" and "convert" is under construction.
+Modules "validate" and "convert" are under construction.
 We welcome contributors!
